@@ -1,7 +1,11 @@
 from PyQt5.QtWidgets import QMainWindow
 from view.tela import Ui_MainWindow
-import threading, time
+import threading
+import time
+import pygame
+import os
 from os import system
+
 
 class ControllerTela(QMainWindow):
     def __init__(self, model):
@@ -9,17 +13,18 @@ class ControllerTela(QMainWindow):
         self.model = model
         self.tela = Ui_MainWindow()
         self.tela.setupUi(self)
-        iniciar = threading.Thread(target = self.testar, daemon = True).start()
-        
+        iniciar = threading.Thread(target=self.testar, daemon=True).start()
+
     def testar(self):
         while True:
-            iniciar = threading.Thread(target = self.testarcaixa27, daemon = True).start()
+            iniciar = threading.Thread(
+                target=self.testarcaixa27, daemon=True).start()
             #iniciar = threading.Thread(target = self.testarcaixa28, daemon = True).start()
             #iniciar = threading.Thread(target = self.testarcaixa29, daemon = True).start()
             #iniciar = threading.Thread(target = self.testaradm1, daemon = True).start()
             #niciar = threading.Thread(target = self.testaradm2, daemon = True).start()
             #iniciar = threading.Thread(target = self.testarcam, daemon = True).start()
-            iniciar = threading.Thread(target = self.testardvr, daemon = True).start()
+            #iniciar = threading.Thread(target = self.testardvr, daemon = True).start()
             #iniciar = threading.Thread(target = self.testarrede, daemon = True).start()
             """self.testarcaixa27()
             self.testarcaixa28()
@@ -29,28 +34,33 @@ class ControllerTela(QMainWindow):
             self.testarcam()
             self.testardvr()
             self.testarrede()"""
-            system("cls")
-            time.sleep(10)
+            time.sleep(3)
 
     def testarcaixa27(self):
         try:
             resultado = self.ping("192.168.195.253")
             if resultado == True:
-                self.tela.caixa27.setText("v")
                 self.tela.caixa27.setStyleSheet("color:green;")
             else:
-                self.tela.caixa27.setText("x")
                 self.tela.caixa27.setStyleSheet("color:red;")
+                pygame.mixer.init()
+                pygame.mixer.music.load("toque.mp3")
+                pygame.mixer.music.play()
+                while pygame.mixer.music.get_busy() == True:
+                    continue
+
         except:
-            pass    
+            pass
+        # system("cls")
+        # time.sleep(1)
+
+
     def testarcaixa28(self):
         try:
             resultado = self.ping("192.168.195.252")
             if resultado == True:
-                self.tela.caixa28.setText("v")
                 self.tela.caixa28.setStyleSheet("color:green;")
             else:
-                self.tela.caixa28.setText("x")
                 self.tela.caixa28.setStyleSheet("color:red;")
         except:
             pass
@@ -90,6 +100,7 @@ class ControllerTela(QMainWindow):
                 self.tela.adm2.setStyleSheet("color:red;")
         except:
             pass
+
     def testarcam(self):
         try:
             resultado = self.ping("192.168.195.222")
@@ -101,20 +112,22 @@ class ControllerTela(QMainWindow):
                 self.tela.cam.setStyleSheet("color:red;")
         except:
             pass
+
     def testardvr(self):
         try:
             resultado = self.ping("192.168.195.251")
             if resultado == True:
-                self.tela.dvr.setText("v")
                 self.tela.dvr.setStyleSheet("color:green;")
-                #self.tela.frame.setStyleSheet("background-color:green;")
+                # self.tela.frame.setStyleSheet("background-color:green;")
 
             else:
-                self.tela.dvr.setText("x")
                 self.tela.dvr.setStyleSheet("color:red;")
-                #self.tela.frame.setStyleSheet("background-color:red;")
+                # self.tela.frame.setStyleSheet("background-color:red;")
         except:
             pass
+        system("cls")
+        time.sleep(2)
+
     def testarrede(self):
         try:
             resultado = self.ping("10.0.10.2")
@@ -126,16 +139,18 @@ class ControllerTela(QMainWindow):
                 self.tela.rede.setStyleSheet("color:red;")
         except:
             pass
+
     def ping(self, Host):
         """
         Returns True if Host responds to a ping request
         """
-        import subprocess, platform
+        import subprocess
+        import platform
         try:
             # Ping parameters as function of OS
-            ping_str = "-n 1" if  platform.system().lower()=="windows"else "-c "
+            ping_str = "-n 1" if platform.system().lower() == "windows"else "-c "
             args = "ping " + " " + ping_str + " " + Host
-            need_sh = False if  platform.system().lower()=="windows" else True
+            need_sh = False if platform.system().lower() == "windows" else True
 
             # Ping
             return subprocess.call(args) == 0
